@@ -49,7 +49,11 @@ export default async ({ router, Vue }) => {
           })
         } else {
           LocalStorage.set('user', doc.data())
-          router.push('/').catch(() => {})
+          if (doc.data().isKitchen) {
+            router.push('/order_history').catch(() => {})
+          } else {
+            router.push('/').catch(() => {})
+          }
         }
       }).catch((error) => {
         LocalStorage.remove('user')

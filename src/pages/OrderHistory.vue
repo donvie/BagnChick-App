@@ -221,6 +221,12 @@
                     </q-item-section>
                   </q-item>
                 </q-list>
+                
+                <q-item>
+                  <q-item-section>
+                    <q-item-label v-if="$q.localStorage.getItem('user').isAdmin"><q-btn unelevated @click="markAsPayment(order)" label="Mark as payment" color="positive" /></q-item-label>
+                  </q-item-section>
+                </q-item>
               </q-expansion-item>
             </q-list>
 
@@ -390,7 +396,7 @@ export default {
       }).onDismiss(() => {
       })
     },
-    markAsCompleted (order) {
+    markAsPayment (order) {
       this.$q.dialog({
         title: 'Confirm',
         message: 'Enter Total price',
@@ -420,6 +426,50 @@ export default {
         } else {
           this.$db.collection('orders').doc(order.id).set({
             totalPrice: data,
+            // status: 'Completed'
+          }, { merge: true });
+          this.$q.notify({
+            position: 'top-left',
+            timeout: 1500,
+            icon: 'check',
+            message: 'Success!',
+            color: 'positive'
+          })
+        }
+      }).onCancel(() => {
+      }).onDismiss(() => {
+      })
+    },
+    markAsCompleted (order) {
+      this.$q.dialog({
+        title: 'Confirm',
+        message: 'Are you sure you want to proceed?',
+        // color: 'red',
+        // prompt: {
+        //   model: '',
+        //   type: 'number'
+        // },
+        ok: {
+          color: 'red',
+          unelevated: true
+        },
+        cancel: {
+          color: 'red',
+          flat: true
+        },
+        persistent: true
+      }).onOk(data => {
+        if (data === '') {
+          this.$q.notify({
+            position: 'top-left',
+            timeout: 1500,
+            icon: 'close',
+            message: 'Total Price can not be empty.',
+            color: 'negative'
+          })
+        } else {
+          this.$db.collection('orders').doc(order.id).set({
+            // totalPrice: data,
             status: 'Completed'
           }, { merge: true });
           this.$q.notify({

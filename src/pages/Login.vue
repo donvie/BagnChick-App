@@ -75,7 +75,7 @@ export default {
         var user = result.user;
         // this.$user = user
         this.$q.localStorage.set('user', user)
-        this.$router.push('/')
+        // this.$router.push('/')
 
         // This gives you a Facebook Access Token. You can use it to access the Facebook API.
         var accessToken = credential.accessToken;
@@ -102,7 +102,7 @@ export default {
         // The signed-in user info.
         var user = result.user;
         this.$q.localStorage.set('user', user)
-        this.$router.push('/')
+        // this.$router.push('/')
 
         // This gives you a Facebook Access Token. You can use it to access the Facebook API.
         var accessToken = credential.accessToken;
@@ -126,7 +126,7 @@ export default {
         // Signed in
         var user = userCredential.user;
         this.$q.localStorage.set('user', user)
-        this.$router.push('/')
+        // this.$router.push('/')
         this.loading = false
         // ...
       }).catch((error) => {

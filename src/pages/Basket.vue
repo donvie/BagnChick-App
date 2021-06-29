@@ -57,7 +57,7 @@
         <q-footer class="bg-white">
           <q-toolbar>
             <q-toolbar-title></q-toolbar-title>
-            <q-btn label="Place order / Scan QR code" @click="placeOrder()" size="17px" class="full-width" no-caps color="red" dense unelevated />
+            <q-btn label="Place order" :disable="tableNumber === ''" @click="placeOrder()" size="17px" class="full-width" no-caps color="red" dense unelevated />
           </q-toolbar>
         </q-footer>
 
@@ -144,7 +144,7 @@
 <script>
 import { sumBy } from 'lodash'
 export default {
-  props: ['carts'],
+  props: ['carts', 'tableNumber'],
   data () {
     return {
       remarks: '',
@@ -188,66 +188,65 @@ export default {
       })
     },
     placeOrder () {
-      cordova.plugins.barcodeScanner.scan((result) => {
-        this.$q.dialog({
-          title: 'Table Number: ' + result.text ,
-          message: 'Are you sure you want to place your order?',
-          ok: {
-            color: 'red',
-            unelevated: true
-          },
-          cancel: {
-            color: 'red',
-            flat: true
-          },
-          persistent: true
-        }).onOk(() => {
-          this.$db.collection('orders').add({
-            tableNumber: result.text,
-            user: this.$q.localStorage.getItem('user'),
-            menus: this.carts.filter(cart => cart.isChecked).map(cart => cart.menu),
-            discounts: this.discounts,
-            addOns: this.addOns,
-            status: 'Pending',
-            remarks: this.remarks,
-            totalPrice: 0,
-            createdAt: this.$firebase.firestore.FieldValue.serverTimestamp()
-          }).then(() => {
-            this.$q.notify({
-              position: 'top-left',
-              timeout: 1500,
-              icon: 'check',
-              message: 'Order has been succesfully placed.',
-              color: 'positive'
-            })
-            this.$router.push('/order_history')
+      // cordova.plugins.barcodeScanner.scan((result) => {
+      this.$q.dialog({
+        title: 'Table Number: ' + this.tableNumber,
+        message: 'Are you sure you want to place your order?',
+        ok: {
+          color: 'red',
+          unelevated: true
+        },
+        cancel: {
+          color: 'red',
+          flat: true
+        },
+        persistent: true
+      }).onOk(() => {
+        this.$db.collection('orders').add({
+          tableNumber: this.tableNumber,
+          user: this.$q.localStorage.getItem('user'),
+          menus: this.carts.filter(cart => cart.isChecked).map(cart => cart.menu),
+          discounts: this.discounts,
+          addOns: this.addOns,
+          status: 'Pending',
+          remarks: this.remarks,
+          totalPrice: 0,
+          createdAt: this.$firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          this.$q.notify({
+            position: 'top-left',
+            timeout: 1500,
+            icon: 'check',
+            message: 'Order has been succesfully placed.',
+            color: 'positive'
           })
-        }).onCancel(() => {
-        }).onDismiss(() => {
+          this.$router.push('/order_history')
         })
-
-
-      },function (error) {
-        this.$q.notify({
-          position: 'top-left',
-          timeout: 1500,
-          icon: 'close',
-          message: 'Scanning failed' + error,
-          color: 'negative'
-        })
-      }, {
-        preferFrontCamera : false, // iOS and Android
-        showFlipCameraButton : true, // iOS and Android
-        showTorchButton : true, // iOS and Android
-        torchOn: false, // Android, launch with the torch switched on (if available)
-        saveHistory: true, // Android, save scan history (default false)
-        prompt : "Place a barcode inside the scan area", // Android
-        resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
-        formats : "QR_CODE,PDF_417", // default: all but PDF_417 and RSS_EXPANDED
-        orientation : "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
-        disableAnimations : true, // iOS
-        disableSuccessBeep: false // iOS and Android
+      }).onCancel(() => {
+      }).onDismiss(() => {
       })
+
+      // },function (error) {
+      //   this.$q.notify({
+      //     position: 'top-left',
+      //     timeout: 1500,
+      //     icon: 'close',
+      //     message: 'Scanning failed' + error,
+      //     color: 'negative'
+      //   })
+      // }, {
+      //   preferFrontCamera : false, // iOS and Android
+      //   showFlipCameraButton : true, // iOS and Android
+      //   showTorchButton : true, // iOS and Android
+      //   torchOn: false, // Android, launch with the torch switched on (if available)
+      //   saveHistory: true, // Android, save scan history (default false)
+      //   prompt : "Place a barcode inside the scan area", // Android
+      //   resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+      //   formats : "QR_CODE,PDF_417", // default: all but PDF_417 and RSS_EXPANDED
+      //   orientation : "portrait", // Android only (portrait|landscape), default unset so it rotates with the device
+      //   disableAnimations : true, // iOS
+      //   disableSuccessBeep: false // iOS and Android
+      // })
     }
   }
 }
